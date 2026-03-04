@@ -23,6 +23,12 @@ def env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+def append_unique(items: list[str], value: str) -> list[str]:
+    if value and value not in items:
+        items.append(value)
+    return items
+
+
 def get_database_config() -> dict:
     database_url = os.getenv("DATABASE_URL", "").strip()
     if not database_url:
@@ -68,6 +74,11 @@ SECRET_KEY = os.getenv(
 DEBUG = env_bool("DJANGO_DEBUG", default=True)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", default="127.0.0.1,localhost")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+
+render_external_hostname = os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip()
+if render_external_hostname:
+    append_unique(ALLOWED_HOSTS, render_external_hostname)
+    append_unique(CSRF_TRUSTED_ORIGINS, f"https://{render_external_hostname}")
 
 
 # Application definition
