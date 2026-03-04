@@ -1,0 +1,119 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Livraisons{% endblock %}
+{% block header_title %}Module Livraisons{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h3>Dernières livraisons</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Ordre</th>
+          <th>Livré le</th>
+          <th>Quantité</th>
+          <th>Écart</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for delivery in recent_deliveries %}
+          <tr>
+            <td>{{ delivery.ordre.reference }}</td>
+            <td>{{ delivery.livre_le }}</td>
+            <td>{{ delivery.quantite_livree_litres }} L</td>
+            <td>{{ delivery.ecart_litres }} L</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Aucune livraison.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Tournées récentes</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Ordre</th>
+          <th>Camion</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for trip in recent_trips %}
+          <tr>
+            <td>{{ trip.ordre.reference }}</td>
+            <td>{{ trip.vehicle }}</td>
+            <td>{{ trip.get_statut_display }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">Aucune tournée.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 12px;">
+      <a class="button secondary" href="{% url 'erp:delivery_list' %}">Gérer les livraisons</a>
+    </p>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Incidents liés aux livraisons</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Incident</th>
+          <th>Tournée</th>
+          <th>Gravité</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for incident in recent_incidents %}
+          <tr>
+            <td>{{ incident.type_incident }}</td>
+            <td>{{ incident.trip }}</td>
+            <td>{{ incident.get_severite_display }}</td>
+            <td>{{ incident.date_incident }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Aucun incident.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Écarts de livraison</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Ordre</th>
+          <th>Écart (L)</th>
+          <th>Livré le</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for delivery in recent_deliveries %}
+          {% if delivery.ecart_litres %}
+            <tr>
+              <td>{{ delivery.ordre.reference }}</td>
+              <td>{{ delivery.ecart_litres }}</td>
+              <td>{{ delivery.livre_le }}</td>
+            </tr>
+          {% endif %}
+        {% empty %}
+          <tr>
+            <td colspan="3">Aucun écart.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

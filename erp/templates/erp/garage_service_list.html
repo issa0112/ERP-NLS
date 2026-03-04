@@ -1,0 +1,51 @@
+{% extends "erp/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h2>{{ title }}</h2>
+    <p class="list-meta">Catalogue des prestations atelier standardisees.</p>
+    <p>
+      <a class="button" href="{% url 'erp:garage_service_create' %}">Ajouter</a>
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Service</th>
+          <th>Categorie</th>
+          <th>Intervalle km</th>
+          <th>Intervalle jours</th>
+          <th>Duree standard (h)</th>
+          <th>Cout standard</th>
+          <th>Actif</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td>{{ item.code }}</td>
+            <td>{{ item.nom }}</td>
+            <td>{{ item.get_categorie_display }}</td>
+            <td>{{ item.interval_km|default:"-" }}</td>
+            <td>{{ item.interval_jours|default:"-" }}</td>
+            <td>{{ item.duree_standard_heures }}</td>
+            <td>{{ item.cout_main_oeuvre_standard }}</td>
+            <td>{% if item.actif %}Oui{% else %}Non{% endif %}</td>
+            <td class="actions">
+              <a href="{% url 'erp:garage_service_update' item.pk %}">Modifier</a>
+              <a href="{% url 'erp:garage_service_delete' item.pk %}">Supprimer</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="9">Aucun service garage.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "erp/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h2>{{ title }}</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="form-actions">
+        <button class="button" type="submit">Enregistrer</button>
+        <a href="javascript:history.back()">Annuler</a>
+      </div>
+    </form>
+  </div>
+  <script>
+    (function () {
+      const statutField = document.getElementById("id_statut");
+      const motifField = document.getElementById("id_motif_hors_service");
+      if (!statutField || !motifField) return;
+
+      const motifRow = motifField.closest("p");
+      if (!motifRow) return;
+
+      function toggleMotif() {
+        const isHorsService = statutField.value === "hors_service";
+        motifRow.style.display = isHorsService ? "" : "none";
+      }
+
+      statutField.addEventListener("change", toggleMotif);
+      toggleMotif();
+    })();
+  </script>
+{% endblock %}

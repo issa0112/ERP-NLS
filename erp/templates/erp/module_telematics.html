@@ -1,0 +1,230 @@
+﻿{% extends "erp/base.html" %}
+
+{% block title %}Télématique{% endblock %}
+{% block header_title %}Télématique & GPS{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h2>Connexion Traccar</h2>
+    {% if telematics.ok %}
+      <p class="list-meta">Connexion active. Positions récupérées.</p>
+    {% else %}
+      <p class="list-meta">{{ telematics.message }}</p>
+      <p class="list-meta">
+        Renseignez `TRACCAR_BASE_URL` et `TRACCAR_TOKEN` dans `nouvelle_logistique/settings.py`.
+      </p>
+    {% endif %}
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Carte GPS</h3>
+    {% if traccar_iframe_url %}
+      <iframe
+        title="Traccar Map"
+        src="{{ traccar_iframe_url }}"
+        style="width: 100%; height: 420px; border: 1px solid #e1ddd2; border-radius: 8px;"
+      ></iframe>
+    {% else %}
+      <p class="list-meta">
+        Ajoutez un lien carte dans `TRACCAR_IFRAME_URL` pour afficher la carte en direct.
+      </p>
+    {% endif %}
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Carte OpenStreetMap</h3>
+    {% if osm_device %}
+      <p class="list-meta">Dernier véhicule localisé: {{ osm_device.name }}</p>
+      <div class="panel" style="margin-bottom: 12px;">
+        <h4>Filtres camions</h4>
+        <div id="filters" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+        <div style="margin-top: 10px; display: flex; gap: 16px; flex-wrap: wrap;">
+          <label style="display: flex; align-items: center; gap: 6px;">
+            <input type="checkbox" id="filter-moving" checked />
+            En mouvement
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px;">
+            <input type="checkbox" id="filter-stopped" checked />
+            À l’arrêt
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px;">
+            Rafraîchissement automatique
+            <select id="refresh-interval">
+              <option value="0">Désactivé</option>
+              <option value="10">10 s</option>
+              <option value="15" selected>15 s</option>
+              <option value="30">30 s</option>
+              <option value="60">60 s</option>
+            </select>
+          </label>
+          <button id="toggle-fullscreen" class="button secondary" type="button">Plein écran</button>
+        </div>
+      </div>
+      <div id="map" style="width: 100%; height: 420px; border: 1px solid #e1ddd2; border-radius: 8px;"></div>
+    {% else %}
+      <p class="list-meta">Aucune position GPS disponible pour afficher la carte.</p>
+    {% endif %}
+  </div>
+
+  <script>
+    const positions = {{ positions_json|safe }};
+    if (positions && positions.length) {
+      const map = L.map("map").setView([positions[0].lat, positions[0].lon], 10);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: "&copy; OpenStreetMap contributors",
+      }).addTo(map);
+
+      const cluster = L.markerClusterGroup();
+      const markers = [];
+
+      const filtersRoot = document.getElementById("filters");
+      const movingFilter = document.getElementById("filter-moving");
+      const stoppedFilter = document.getElementById("filter-stopped");
+      const refreshSelect = document.getElementById("refresh-interval");
+      const fullscreenBtn = document.getElementById("toggle-fullscreen");
+      const mapContainer = document.getElementById("map");
+      let refreshTimer = null;
+
+      const uniqueNames = [...new Set(positions.map((p) => p.name).filter(Boolean))].sort();
+
+      uniqueNames.forEach((name) => {
+        const label = document.createElement("label");
+        label.style.display = "flex";
+        label.style.alignItems = "center";
+        label.style.gap = "6px";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = true;
+        checkbox.dataset.name = name;
+        label.appendChild(checkbox);
+        const span = document.createElement("span");
+        span.textContent = name;
+        label.appendChild(span);
+        filtersRoot.appendChild(label);
+      });
+
+      function renderMarkers(currentPositions) {
+        cluster.clearLayers();
+        markers.length = 0;
+        const enabled = new Set(
+          Array.from(filtersRoot.querySelectorAll("input[type='checkbox']"))
+            .filter((c) => c.checked)
+            .map((c) => c.dataset.name)
+        );
+        const showMoving = movingFilter.checked;
+        const showStopped = stoppedFilter.checked;
+        currentPositions.forEach((p) => {
+          if (!p.lat || !p.lon) return;
+          if (p.name && !enabled.has(p.name)) return;
+          const speed = p.speed || 0;
+          const isMoving = speed > 0.5;
+          if (isMoving && !showMoving) return;
+          if (!isMoving && !showStopped) return;
+          const marker = L.marker([p.lat, p.lon]).bindPopup(
+            `${p.name || "Camion"}<br>Vitesse: ${p.speed || 0}`
+          );
+          cluster.addLayer(marker);
+          markers.push(marker);
+        });
+        map.addLayer(cluster);
+        if (markers.length) {
+          const group = new L.featureGroup(markers);
+          map.fitBounds(group.getBounds().pad(0.2));
+        }
+      }
+
+      function refreshFromServer() {
+        fetch("{% url 'erp:telematics_positions_json' %}")
+          .then((r) => r.json())
+          .then((data) => {
+            if (data && data.positions) {
+              renderMarkers(data.positions);
+            }
+          })
+          .catch(() => {});
+      }
+
+      function setupAutoRefresh() {
+        if (refreshTimer) clearInterval(refreshTimer);
+        const seconds = parseInt(refreshSelect.value, 10);
+        if (seconds > 0) {
+          refreshTimer = setInterval(refreshFromServer, seconds * 1000);
+        }
+      }
+
+      filtersRoot.addEventListener("change", () => renderMarkers(positions));
+      movingFilter.addEventListener("change", () => renderMarkers(positions));
+      stoppedFilter.addEventListener("change", () => renderMarkers(positions));
+      refreshSelect.addEventListener("change", setupAutoRefresh);
+
+      fullscreenBtn.addEventListener("click", () => {
+        mapContainer.classList.toggle("fullscreen-map");
+        document.body.classList.toggle("fullscreen-open");
+        fullscreenBtn.textContent = mapContainer.classList.contains("fullscreen-map")
+          ? "Quitter plein écran"
+          : "Plein écran";
+        setTimeout(() => map.invalidateSize(), 200);
+      });
+
+      renderMarkers(positions);
+      setupAutoRefresh();
+    }
+  </script>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Positions en temps réel</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Appareil</th>
+          <th>Statut</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Vitesse</th>
+          <th>Dernière mise à jour</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in telematics.positions %}
+          <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.status }}</td>
+            <td>{{ item.position.latitude }}</td>
+            <td>{{ item.position.longitude }}</td>
+            <td>{{ item.position.speed }}</td>
+            <td>{{ item.position.deviceTime }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">Aucune position disponible.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Camions liés à un GPS</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Camion</th>
+          <th>Device ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vehicle in vehicles %}
+          <tr>
+            <td>{{ vehicle.immatriculation }}</td>
+            <td>{{ vehicle.gps_device_id }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">Aucun camion lié.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

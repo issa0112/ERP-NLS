@@ -1,0 +1,123 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Carburant{% endblock %}
+{% block header_title %}Module Carburant{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h3>Types de carburant</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fuel in fuel_types %}
+          <tr>
+            <td>{{ fuel.nom }}</td>
+            <td>{{ fuel.code }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">Aucun type de carburant.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Lots récents</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Lot</th>
+          <th>Carburant</th>
+          <th>Quantité</th>
+          <th>Site</th>
+          <th>Réception</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for batch in batches %}
+          <tr>
+            <td>{{ batch.batch_number }}</td>
+            <td>{{ batch.fuel_type }}</td>
+            <td>{{ batch.quantite_litres }} L</td>
+            <td>{{ batch.site }}</td>
+            <td>{{ batch.recu_le }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">Aucun lot enregistré.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 12px;">
+      <a class="button" href="{% url 'erp:fueltype_list' %}">Gérer les types</a>
+    </p>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Mesures de niveau</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Tournée</th>
+          <th>Compartiment</th>
+          <th>Niveau</th>
+          <th>Source</th>
+          <th>Événement</th>
+          <th>Mesuré le</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for measurement in measurements %}
+          <tr>
+            <td>{{ measurement.trip }}</td>
+            <td>{{ measurement.compartment }}</td>
+            <td>{{ measurement.niveau_litres }} L</td>
+            <td>{{ measurement.get_source_display }}</td>
+            <td>{{ measurement.get_evenement_display }}</td>
+            <td>{{ measurement.mesure_le }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">Aucune mesure disponible.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Alertes chute de niveau</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Tournée</th>
+          <th>Compartiment</th>
+          <th>Chute (L)</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for alert in drop_alerts %}
+          <tr>
+            <td>{{ alert.trip }}</td>
+            <td>{{ alert.compartment }}</td>
+            <td>{{ alert.drop_liters }}</td>
+            <td>{{ alert.mesure_le }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Aucune alerte.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

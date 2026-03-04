@@ -1,0 +1,59 @@
+{% extends "erp/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h2>{{ title }}</h2>
+    <p class="list-meta">Stock atelier avec seuil mini et alertes de reapprovisionnement.</p>
+    <p>
+      <a class="button" href="{% url 'erp:garage_part_create' %}">Ajouter</a>
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Designation</th>
+          <th>Categorie</th>
+          <th>Unite</th>
+          <th>Stock</th>
+          <th>Stock min</th>
+          <th>Prix unitaire</th>
+          <th>Fournisseur</th>
+          <th>Alerte</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td>{{ item.reference }}</td>
+            <td>{{ item.designation }}</td>
+            <td>{{ item.categorie|default:"-" }}</td>
+            <td>{{ item.unite }}</td>
+            <td>{{ item.stock_actuel }}</td>
+            <td>{{ item.stock_min }}</td>
+            <td>{{ item.prix_unitaire }}</td>
+            <td>{{ item.fournisseur|default:"-" }}</td>
+            <td>
+              {% if item.en_alerte_stock %}
+                <span class="badge badge-danger">Rupture imminente</span>
+              {% else %}
+                <span class="badge badge-success">OK</span>
+              {% endif %}
+            </td>
+            <td class="actions">
+              <a href="{% url 'erp:garage_part_update' item.pk %}">Modifier</a>
+              <a href="{% url 'erp:garage_part_delete' item.pk %}">Supprimer</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="10">Aucune piece.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

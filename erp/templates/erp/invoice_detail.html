@@ -1,0 +1,105 @@
+﻿{% extends "erp/base.html" %}
+
+{% block title %}Facture {{ invoice.numero }}{% endblock %}
+{% block header_title %}Facture {{ invoice.numero }}{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h3>Details facture</h3>
+    <p class="list-meta">
+      Client: {{ invoice.client }} | Statut: {{ invoice.get_statut_display }} |
+      Tel: {{ invoice.client.telephone|default:"Non renseigne" }} |
+      Email: {{ invoice.client.email|default:"Non renseigne" }}
+    </p>
+    <table>
+      <tbody>
+        <tr>
+          <th>Numero de facture</th>
+          <td>{{ invoice.numero }}</td>
+        </tr>
+        <tr>
+          <th>Date d'emission</th>
+          <td>{{ invoice.emis_le|date:"d/m/Y" }}</td>
+        </tr>
+        <tr>
+          <th>Date d'echeance</th>
+          <td>
+            {% if invoice.echeance_le %}
+              {{ invoice.echeance_le|date:"d/m/Y" }}
+            {% else %}
+              Non renseignee
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th>Delai de paiement</th>
+          <td>
+            {% if payment_terms_days is not None %}
+              {{ payment_terms_days }} jour{% if payment_terms_days|add:"0" > 1 %}s{% endif %}
+            {% else %}
+              Non defini
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th>Suivi d'echeance</th>
+          <td>
+            {% if days_to_due is None %}
+              <span class="badge badge-muted">Echeance non definie</span>
+            {% elif days_to_due < 0 %}
+              <span class="badge badge-danger">
+                En retard de {{ days_to_due|add:"0"|cut:"-" }} jour{% if days_to_due != -1 %}s{% endif %}
+              </span>
+            {% elif days_to_due == 0 %}
+              <span class="badge badge-warning">Echeance aujourd'hui</span>
+            {% else %}
+              <span class="badge badge-success">
+                {{ days_to_due }} jour{% if days_to_due > 1 %}s{% endif %} restants
+              </span>
+            {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="form-actions">
+      <a class="button" href="{% url 'erp:invoice_pdf' invoice.pk %}" target="_blank" rel="noopener">Telecharger PDF</a>
+      <a class="button secondary" href="{% url 'erp:invoice_pdf' invoice.pk %}" target="_blank" rel="noopener">Imprimer</a>
+      <a class="button secondary" href="{% url 'erp:invoice_send_whatsapp' invoice.pk %}" target="_blank" rel="noopener">Envoyer WhatsApp</a>
+      <form method="post" action="{% url 'erp:invoice_send_email' invoice.pk %}" style="display:inline;">
+        {% csrf_token %}
+        <button class="button secondary" type="submit">Envoyer Email</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Lignes</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Quantite</th>
+          <th>Prix unitaire</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for line in invoice.lignes.all %}
+          <tr>
+            <td>{{ line.description }}</td>
+            <td>{{ line.quantite }}</td>
+            <td>{{ line.prix_unitaire }}</td>
+            <td>{{ line.total }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Aucune ligne.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 12px;">
+      Total: <strong>{{ invoice.total }}</strong>
+    </p>
+  </div>
+{% endblock %}

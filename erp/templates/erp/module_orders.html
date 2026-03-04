@@ -1,0 +1,114 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Ordres{% endblock %}
+{% block header_title %}Module Ordres de transport{% endblock %}
+
+{% block content %}
+  <div class="grid grid-3">
+    <div class="card">
+      <h3>Brouillons</h3>
+      <div class="value">{{ status_counts.brouillon }}</div>
+    </div>
+    <div class="card">
+      <h3>Planifiés</h3>
+      <div class="value">{{ status_counts.planifie }}</div>
+    </div>
+    <div class="card">
+      <h3>En cours</h3>
+      <div class="value">{{ status_counts.en_cours }}</div>
+    </div>
+    <div class="card">
+      <h3>Livrés</h3>
+      <div class="value">{{ status_counts.livre }}</div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Ordres récents</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Référence</th>
+          <th>Client</th>
+          <th>Carburant</th>
+          <th>Quantité</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in recent_orders %}
+          <tr>
+            <td>{{ order.reference }}</td>
+            <td>{{ order.client }}</td>
+            <td>{{ order.fuel_type }}</td>
+            <td>{{ order.quantite_prevue_litres }} L</td>
+            <td>{{ order.get_statut_display }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">Aucun ordre.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 12px;">
+      <a class="button" href="{% url 'erp:order_list' %}">Gérer les ordres</a>
+    </p>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Tournées en cours</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Ordre</th>
+          <th>Camion</th>
+          <th>Chauffeur</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for trip in recent_trips %}
+          <tr>
+            <td>{{ trip.ordre.reference }}</td>
+            <td>{{ trip.vehicle }}</td>
+            <td>{{ trip.driver }}</td>
+            <td>{{ trip.get_statut_display }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Aucune tournée enregistrée.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Incidents récents</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Incident</th>
+          <th>Tournée</th>
+          <th>Gravité</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for incident in recent_incidents %}
+          <tr>
+            <td>{{ incident.type_incident }}</td>
+            <td>{{ incident.trip }}</td>
+            <td>{{ incident.get_severite_display }}</td>
+            <td>{{ incident.date_incident }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Aucun incident déclaré.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

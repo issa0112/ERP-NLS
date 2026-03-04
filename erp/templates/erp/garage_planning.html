@@ -1,0 +1,103 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Planning atelier{% endblock %}
+{% block header_title %}Planning atelier{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h2>Planning visuel atelier</h2>
+    <p class="list-meta">Glisser-deposer un ordre d'une colonne a l'autre pour changer son statut.</p>
+    <p>
+      <a class="button" href="{% url 'erp:garage_workorder_create' %}">Nouvel ordre</a>
+      <a class="button secondary" href="{% url 'erp:garage_workorder_list' %}">Liste ordres</a>
+    </p>
+  </div>
+
+  <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: 16px;">
+    {% for col in columns %}
+      <div class="panel board-col" data-status="{{ col.value }}">
+        <h3>{{ col.label }}</h3>
+        <div class="dropzone" style="min-height: 120px;">
+          {% for item in col.items %}
+            <div class="card wo-card" draggable="true" data-id="{{ item.pk }}" style="margin-bottom: 10px;">
+              <h3 style="margin-bottom: 8px;">{{ item.reference }}</h3>
+              <div>{{ item.vehicle.immatriculation }}</div>
+              <div class="list-meta">{{ item.service_type|default:"Service non defini" }}</div>
+              <div class="list-meta">Priorite: {{ item.get_priorite_display }}</div>
+              <div style="margin-top: 6px;">
+                {% if item.sla_status == "retard" %}
+                  <span class="badge badge-danger">SLA en retard ({{ item.sla_delay_hours }} h)</span>
+                {% elif item.sla_status == "a_l_heure" %}
+                  <span class="badge badge-success">SLA a l'heure</span>
+                {% else %}
+                  <span class="badge badge-muted">SLA non planifie</span>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    (function () {
+      const cards = document.querySelectorAll(".wo-card");
+      const zones = document.querySelectorAll(".board-col .dropzone");
+      let dragged = null;
+
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+        return "";
+      }
+
+      cards.forEach((card) => {
+        card.addEventListener("dragstart", () => {
+          dragged = card;
+          card.style.opacity = "0.5";
+        });
+        card.addEventListener("dragend", () => {
+          card.style.opacity = "1";
+        });
+      });
+
+      zones.forEach((zone) => {
+        zone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+        });
+
+        zone.addEventListener("drop", async (e) => {
+          e.preventDefault();
+          if (!dragged) return;
+
+          const col = zone.closest(".board-col");
+          const statut = col.getAttribute("data-status");
+          const woId = dragged.getAttribute("data-id");
+          const url = "{% url 'erp:garage_workorder_move_status' 0 %}".replace("/0/", `/${woId}/`);
+
+          try {
+            const body = new URLSearchParams({ statut });
+            const resp = await fetch(url, {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: body.toString(),
+            });
+            const data = await resp.json();
+            if (!data.ok) {
+              alert(data.message || "Erreur de mise a jour.");
+              return;
+            }
+            zone.appendChild(dragged);
+          } catch (err) {
+            alert("Impossible de mettre a jour le statut.");
+          }
+        });
+      });
+    })();
+  </script>
+{% endblock %}

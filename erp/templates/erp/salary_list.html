@@ -1,0 +1,46 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Salaires{% endblock %}
+{% block header_title %}Salaires{% endblock %}
+
+{% block content %}
+  {% include "erp/partials/date_filters.html" %}
+  <div class="panel">
+    <h3>Liste des salaires</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Référence</th>
+          <th>Employé</th>
+          <th>Période</th>
+          <th>Net</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for salary in items %}
+          <tr>
+            <td>{{ salary.reference }}</td>
+            <td>{{ salary.employee }}</td>
+            <td>{{ salary.periode_debut }} → {{ salary.periode_fin }}</td>
+            <td>{{ salary.net }}</td>
+            <td>{{ salary.get_statut_display }}</td>
+            <td class="actions">
+              <a href="{% url 'erp:salary_detail' salary.pk %}">Ouvrir</a>
+              <a href="{% url 'erp:salary_pdf' salary.pk %}">PDF</a>
+              <a href="{% url 'erp:salary_update' salary.pk %}">Modifier</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">Aucun salaire.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 12px;">
+      <a class="button" href="{% url 'erp:salary_create' %}">Nouveau salaire</a>
+    </p>
+  </div>
+{% endblock %}

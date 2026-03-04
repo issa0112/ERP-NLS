@@ -1,0 +1,22 @@
+<div class="panel">
+  <h3>Filtres de dates</h3>
+  <form method="get" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: end;">
+    <div>
+      <label for="day">Jour</label>
+      <input id="day" name="day" type="date" value="{{ filters.day }}" />
+    </div>
+    <div>
+      <label for="month">Mois</label>
+      <input id="month" name="month" type="month" value="{{ filters.month }}" />
+    </div>
+    <div>
+      <label for="year">Année</label>
+      <input id="year" name="year" type="number" min="2000" max="2100" value="{{ filters.year }}" />
+    </div>
+    {% if query %}
+      <input type="hidden" name="q" value="{{ query }}" />
+    {% endif %}
+    <button class="button" type="submit">Filtrer</button>
+    <a href="{{ request.path }}">Réinitialiser</a>
+  </form>
+</div>

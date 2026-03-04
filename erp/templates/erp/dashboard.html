@@ -1,0 +1,216 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Tableau de bord{% endblock %}
+{% block header_title %}Tableau de bord exécutif{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h2>Tableau de bord</h2>
+    <p class="list-meta">
+      Synthèse opérationnelle et alertes clés pour la logistique carburant.
+    </p>
+  </div>
+
+  <div class="grid grid-3" style="margin-top: 16px;">
+    <div class="card">
+      <h3>Clients</h3>
+      <div class="value">{{ stats.clients }}</div>
+    </div>
+    <div class="card">
+      <h3>Sites & Dépôts</h3>
+      <div class="value">{{ stats.sites }}</div>
+    </div>
+    <div class="card">
+      <h3>Camions</h3>
+      <div class="value">{{ stats.vehicles }}</div>
+    </div>
+    <div class="card">
+      <h3>Chauffeurs</h3>
+      <div class="value">{{ stats.drivers }}</div>
+    </div>
+    <div class="card">
+      <h3>Ordres</h3>
+      <div class="value">{{ stats.orders }}</div>
+    </div>
+    <div class="card">
+      <h3>Livraisons</h3>
+      <div class="value">{{ stats.deliveries }}</div>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top: 20px;">
+    <div class="panel">
+      <h3>Derniers ordres de transport</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Référence</th>
+            <th>Client</th>
+            <th>Carburant</th>
+            <th>Quantité prévue</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in recent_orders %}
+            <tr>
+              <td>{{ order.reference }}</td>
+              <td>{{ order.client }}</td>
+              <td>{{ order.fuel_type }}</td>
+              <td>{{ order.quantite_prevue_litres }} L</td>
+              <td>{{ order.get_statut_display }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5">Aucun ordre enregistré.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p style="margin-top: 12px;">
+        <a class="button" href="{% url 'erp:order_list' %}">Voir tous les ordres</a>
+      </p>
+    </div>
+
+    <div class="panel">
+      <h3>Dernières livraisons</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Ordre</th>
+            <th>Livré le</th>
+            <th>Quantité</th>
+            <th>Écart</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for delivery in recent_deliveries %}
+            <tr>
+              <td>{{ delivery.ordre.reference }}</td>
+              <td>{{ delivery.livre_le }}</td>
+              <td>{{ delivery.quantite_livree_litres }} L</td>
+              <td>{{ delivery.ecart_litres }} L</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4">Aucune livraison enregistrée.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p style="margin-top: 12px;">
+        <a class="button secondary" href="{% url 'erp:delivery_list' %}">Voir toutes les livraisons</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top: 20px;">
+    <div class="panel">
+      <h3>Alertes critiques</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Incident</th>
+            <th>Tournée</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for incident in critical_incidents %}
+            <tr>
+              <td>{{ incident.type_incident }}</td>
+              <td>{{ incident.trip }}</td>
+              <td>{{ incident.date_incident }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3">Aucun incident critique enregistré.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>Permis à surveiller</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Chauffeur</th>
+            <th>Permis</th>
+            <th>Expire le</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for driver in permit_alerts %}
+            <tr>
+              <td>{{ driver }}</td>
+              <td>{{ driver.numero_permis }}</td>
+              <td>{{ driver.permis_expire_le }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3">Aucun permis à surveiller.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top: 20px;">
+    <div class="panel">
+      <h3>Écarts de livraison</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Ordre</th>
+            <th>Écart (L)</th>
+            <th>Livré le</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for delivery in loss_alerts %}
+            <tr>
+              <td>{{ delivery.ordre.reference }}</td>
+              <td>{{ delivery.ecart_litres }}</td>
+              <td>{{ delivery.livre_le }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3">Aucun écart critique.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>Chutes de niveau</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Tournée</th>
+            <th>Compartiment</th>
+            <th>Chute (L)</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alert in drop_alerts %}
+            <tr>
+              <td>{{ alert.trip }}</td>
+              <td>{{ alert.compartment }}</td>
+              <td>{{ alert.drop_liters }}</td>
+              <td>{{ alert.mesure_le }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4">Aucune chute détectée.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

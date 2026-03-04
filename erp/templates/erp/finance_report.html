@@ -1,0 +1,89 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Rapport financier{% endblock %}
+{% block header_title %}Rapport financier{% endblock %}
+
+{% block content %}
+  {% include "erp/partials/date_filters.html" %}
+
+  <div class="grid grid-3" style="margin-top: 16px;">
+    <div class="card">
+      <h3>Entrées</h3>
+      <div class="value">{{ totals.income }}</div>
+    </div>
+    <div class="card">
+      <h3>Sorties</h3>
+      <div class="value">{{ totals.out }}</div>
+    </div>
+    <div class="card">
+      <h3>Résultat</h3>
+      <div class="value">{{ totals.net }}</div>
+    </div>
+    <div class="card">
+      <h3>Salaires</h3>
+      <div class="value">{{ totals.salaries }}</div>
+    </div>
+    <div class="card">
+      <h3>Dépenses</h3>
+      <div class="value">{{ totals.expenses }}</div>
+    </div>
+    <div class="card">
+      <h3>Avoirs</h3>
+      <div class="value">{{ totals.credit_notes }}</div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Graphique mensuel</h3>
+    <canvas id="finance-chart" height="140"></canvas>
+    <p style="margin-top: 12px;">
+      <a class="button secondary" href="{% url 'erp:finance_report_csv' %}?day={{ filters.day }}&month={{ filters.month }}&year={{ filters.year }}">
+        Exporter CSV
+      </a>
+    </p>
+  </div>
+
+  <script>
+    const labels = {{ series.labels|safe }};
+    const income = {{ series.income|safe }};
+    const out = {{ series.out|safe }};
+
+    const canvas = document.getElementById("finance-chart");
+    const ctx = canvas.getContext("2d");
+    const maxVal = Math.max(...income, ...out, 1);
+    const padding = 30;
+    const width = canvas.width;
+    const height = canvas.height;
+
+    function xScale(i) {
+      return padding + (i * (width - padding * 2)) / Math.max(labels.length - 1, 1);
+    }
+
+    function yScale(value) {
+      return height - padding - (value / maxVal) * (height - padding * 2);
+    }
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.strokeStyle = "#d0cbc1";
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, height - padding);
+    ctx.lineTo(width - padding, height - padding);
+    ctx.stroke();
+
+    function drawLine(values, color) {
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      values.forEach((val, i) => {
+        const x = xScale(i);
+        const y = yScale(val);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    drawLine(income, "#0b5f4a");
+    drawLine(out, "#c77b20");
+  </script>
+{% endblock %}

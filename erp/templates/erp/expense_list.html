@@ -1,0 +1,46 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Dépenses{% endblock %}
+{% block header_title %}Dépenses{% endblock %}
+
+{% block content %}
+  {% include "erp/partials/date_filters.html" %}
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Dépenses</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Catégorie</th>
+          <th>Montant</th>
+          <th>Date</th>
+          <th>Référence</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for expense in items %}
+          <tr>
+            <td>{{ expense.description }}</td>
+            <td>{{ expense.categorie }}</td>
+            <td>{{ expense.montant }}</td>
+            <td>{{ expense.depense_le }}</td>
+            <td>{{ expense.reference }}</td>
+            <td class="actions">
+              <a href="{% url 'erp:expense_update' expense.pk %}">Modifier</a>
+              <a href="{% url 'erp:expense_delete' expense.pk %}">Supprimer</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">Aucune dépense.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 12px;">
+      <a class="button" href="{% url 'erp:expense_create' %}">Nouvelle dépense</a>
+    </p>
+  </div>
+{% endblock %}

@@ -1,0 +1,191 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Ressources humaines{% endblock %}
+{% block header_title %}Module Ressources humaines{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h3>Chauffeurs actifs</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Téléphone</th>
+          <th>Permis</th>
+          <th>Expire le</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for driver in drivers %}
+          <tr>
+            <td>{{ driver }}</td>
+            <td>{{ driver.telephone }}</td>
+            <td>{{ driver.numero_permis }}</td>
+            <td>{{ driver.permis_expire_le }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Aucun chauffeur.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Apprentis</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Chauffeur</th>
+          <th>Téléphone</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for apprentice in apprentices %}
+          <tr>
+            <td>{{ apprentice.prenom }} {{ apprentice.nom }}</td>
+            <td>{{ apprentice.chauffeur }}</td>
+            <td>{{ apprentice.telephone }}</td>
+            <td>{{ apprentice.get_statut_display }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Aucun apprenti.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 12px;">
+      <a class="button" href="{% url 'erp:apprentice_list' %}">Gérer les apprentis</a>
+    </p>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Permis à surveiller</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Chauffeur</th>
+          <th>Permis</th>
+          <th>Expire le</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for driver in permit_alerts %}
+          <tr>
+            <td>{{ driver }}</td>
+            <td>{{ driver.numero_permis }}</td>
+            <td>{{ driver.permis_expire_le }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">Aucune alerte permis.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 12px;">
+      <a class="button" href="{% url 'erp:driver_list' %}">Gérer les chauffeurs</a>
+    </p>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Personnel</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Fonction</th>
+          <th>Département</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for employee in employees %}
+          <tr>
+            <td>{{ employee }}</td>
+            <td>{{ employee.fonction }}</td>
+            <td>{{ employee.departement }}</td>
+            <td>{{ employee.get_statut_display }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Aucun personnel.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 12px;">
+      <a class="button" href="{% url 'erp:employee_list' %}">Gérer le personnel</a>
+    </p>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Salaires récents</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Référence</th>
+          <th>Employé</th>
+          <th>Période</th>
+          <th>Net</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for salary in recent_salaries %}
+          <tr>
+            <td>{{ salary.reference }}</td>
+            <td>{{ salary.employee }}</td>
+            <td>{{ salary.periode_debut }} → {{ salary.periode_fin }}</td>
+            <td>{{ salary.net }}</td>
+            <td>{{ salary.get_statut_display }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">Aucun salaire.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 12px;">
+      <a class="button secondary" href="{% url 'erp:salary_list' %}">Gérer les salaires</a>
+    </p>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Congés & absences</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Employé</th>
+          <th>Type</th>
+          <th>Période</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for leave in leave_requests %}
+          <tr>
+            <td>{{ leave.employee }}</td>
+            <td>{{ leave.get_type_absence_display }}</td>
+            <td>{{ leave.date_debut }} → {{ leave.date_fin }}</td>
+            <td>{{ leave.get_statut_display }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Aucun congé enregistré.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 12px;">
+      <a class="button" href="{% url 'erp:leave_list' %}">Gérer les congés</a>
+      <a class="button secondary" href="{% url 'erp:salary_contribution_list' %}">Voir les cotisations</a>
+      <a class="button secondary" href="{% url 'erp:leave_calendar' %}">Calendrier des congés</a>
+    </p>
+  </div>
+{% endblock %}

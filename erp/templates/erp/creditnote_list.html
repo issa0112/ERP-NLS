@@ -1,0 +1,38 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Avoirs{% endblock %}
+{% block header_title %}Avoirs{% endblock %}
+
+{% block content %}
+  {% include "erp/partials/date_filters.html" %}
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Avoirs</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Facture</th>
+          <th>Client</th>
+          <th>Montant</th>
+          <th>Émis le</th>
+          <th>Raison</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for credit in items %}
+          <tr>
+            <td>{{ credit.invoice.numero }}</td>
+            <td>{{ credit.invoice.client }}</td>
+            <td>{{ credit.montant }}</td>
+            <td>{{ credit.emis_le }}</td>
+            <td>{{ credit.raison }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">Aucun avoir.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

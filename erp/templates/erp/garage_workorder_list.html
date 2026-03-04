@@ -1,0 +1,88 @@
+{% extends "erp/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h2>{{ title }}</h2>
+    <p class="list-meta">Suivi moderne des interventions atelier. Creation en saisie rapide, details complets via Modifier.</p>
+    <p>
+      <a class="button" href="{% url 'erp:garage_workorder_create' %}">Ajouter</a>
+      <a class="button secondary" href="{% url 'erp:module_garage' %}">Dashboard garage</a>
+      <a class="button secondary" href="{% url 'erp:garage_planning' %}">Planning visuel</a>
+    </p>
+    <form method="get" class="grid grid-3" style="margin-top: 10px;">
+      <p>
+        <label for="id_statut">Statut</label>
+        <select id="id_statut" name="statut">
+          <option value="">Tous</option>
+          {% for value, label in statut_choices %}
+            <option value="{{ value }}" {% if selected_statut == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </p>
+      <p>
+        <label for="id_priorite">Priorite</label>
+        <select id="id_priorite" name="priorite">
+          <option value="">Toutes</option>
+          {% for value, label in priorite_choices %}
+            <option value="{{ value }}" {% if selected_priorite == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </p>
+      <p style="align-self: end;">
+        <button class="button" type="submit">Filtrer</button>
+      </p>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Camion</th>
+          <th>Chauffeur</th>
+          <th>Service</th>
+          <th>Priorite</th>
+          <th>Statut</th>
+          <th>Ouvert le</th>
+          <th>SLA</th>
+          <th>Cout total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td>{{ item.reference }}</td>
+            <td>{{ item.vehicle.immatriculation }}</td>
+            <td>{{ item.driver|default:"-" }}</td>
+            <td>{{ item.service_type|default:"-" }}</td>
+            <td>{{ item.get_priorite_display }}</td>
+            <td>{{ item.get_statut_display }}</td>
+            <td>{{ item.ouvert_le }}</td>
+            <td>
+              {% if item.sla_status == "retard" %}
+                <span class="badge badge-danger">En retard ({{ item.sla_delay_hours }} h)</span>
+              {% elif item.sla_status == "a_l_heure" %}
+                <span class="badge badge-success">A l'heure</span>
+              {% else %}
+                <span class="badge badge-muted">Non planifie</span>
+              {% endif %}
+            </td>
+            <td>{{ item.cout_total }}</td>
+            <td class="actions">
+              <a href="{% url 'erp:garage_workorder_update' item.pk %}">Modifier</a>
+              <a href="{% url 'erp:garage_workorder_pdf' item.pk %}">PDF</a>
+              <a href="{% url 'erp:garage_workorder_delete' item.pk %}">Supprimer</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="10">Aucun ordre atelier.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "erp/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h2>{{ title }}</h2>
+    <p class="list-meta">
+      Creer une facture en mode manuel, ou automatiquement depuis un ordre ou une livraison.
+    </p>
+    <form method="post">
+      {% csrf_token %}
+      <h3>Source</h3>
+      <p>{{ form.source_type.label_tag }} {{ form.source_type }}</p>
+      <p>{{ form.client.label_tag }} {{ form.client }} {% if form.client.errors %}{{ form.client.errors }}{% endif %}</p>
+      <p>{{ form.order.label_tag }} {{ form.order }} {% if form.order.errors %}{{ form.order.errors }}{% endif %}</p>
+      <p>{{ form.delivery.label_tag }} {{ form.delivery }} {% if form.delivery.errors %}{{ form.delivery.errors }}{% endif %}</p>
+
+      <h3>Document</h3>
+      <p>{{ form.numero.label_tag }} {{ form.numero }} {% if form.numero.errors %}{{ form.numero.errors }}{% endif %}</p>
+      <p>{{ form.emis_le.label_tag }} {{ form.emis_le }} {% if form.emis_le.errors %}{{ form.emis_le.errors }}{% endif %}</p>
+      <p>{{ form.echeance_le.label_tag }} {{ form.echeance_le }} {% if form.echeance_le.errors %}{{ form.echeance_le.errors }}{% endif %}</p>
+      <p>{{ form.statut.label_tag }} {{ form.statut }} {% if form.statut.errors %}{{ form.statut.errors }}{% endif %}</p>
+
+      <h3>Ligne de facturation</h3>
+      <p>{{ form.description.label_tag }} {{ form.description }} {% if form.description.errors %}{{ form.description.errors }}{% endif %}</p>
+      <p>{{ form.quantite.label_tag }} {{ form.quantite }} {% if form.quantite.errors %}{{ form.quantite.errors }}{% endif %}</p>
+      <p>{{ form.prix_unitaire.label_tag }} {{ form.prix_unitaire }} {% if form.prix_unitaire.errors %}{{ form.prix_unitaire.errors }}{% endif %}</p>
+      <p class="list-meta">
+        En mode manuel, quantite et prix unitaire sont obligatoires.
+      </p>
+
+      {% if form.non_field_errors %}
+        <div class="list-meta">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <div class="form-actions">
+        <button class="button" type="submit">Creer la facture</button>
+        <a href="{% url 'erp:invoice_list' %}">Annuler</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

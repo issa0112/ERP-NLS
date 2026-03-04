@@ -1,0 +1,77 @@
+﻿{% extends "erp/base.html" %}
+
+{% block title %}Factures{% endblock %}
+{% block header_title %}Factures{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h3>Recherche</h3>
+    <form method="get">
+      <label for="q">Numero ou client</label>
+      <input id="q" name="q" value="{{ query }}" placeholder="INV-20260205-..." />
+      <div class="form-actions">
+        <a class="button" href="{% url 'erp:invoice_create' %}">Nouvelle facture</a>
+        <button class="button" type="submit">Rechercher</button>
+        <a href="{% url 'erp:invoice_list' %}">Reinitialiser</a>
+        <a class="button secondary" href="{% url 'erp:invoice_export_csv' %}?q={{ query }}">Exporter CSV</a>
+      </div>
+    </form>
+  </div>
+
+  {% include "erp/partials/date_filters.html" %}
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Liste des factures</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Numero</th>
+          <th>Client</th>
+          <th>Date d'emission</th>
+          <th>Date d'echeance</th>
+          <th>Suivi echeance</th>
+          <th>Statut</th>
+          <th>Total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for invoice in items %}
+          <tr>
+            <td>{{ invoice.numero }}</td>
+            <td>{{ invoice.client }}</td>
+            <td>{{ invoice.emis_le|date:"d/m/Y" }}</td>
+            <td>
+              {% if invoice.echeance_le %}
+                {{ invoice.echeance_le|date:"d/m/Y" }}
+              {% else %}
+                Non renseignee
+              {% endif %}
+            </td>
+            <td>
+              {% if not invoice.echeance_le %}
+                <span class="badge badge-muted">Non definie</span>
+              {% elif invoice.echeance_le < today %}
+                <span class="badge badge-danger">En retard</span>
+              {% elif invoice.echeance_le == today %}
+                <span class="badge badge-warning">Aujourd'hui</span>
+              {% else %}
+                <span class="badge badge-success">Dans les delais</span>
+              {% endif %}
+            </td>
+            <td>{{ invoice.get_statut_display }}</td>
+            <td>{{ invoice.total }}</td>
+            <td class="actions">
+              <a href="{% url 'erp:invoice_detail' invoice.pk %}">Ouvrir</a>
+              <a href="{% url 'erp:invoice_pdf' invoice.pk %}">PDF</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="8">Aucune facture.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

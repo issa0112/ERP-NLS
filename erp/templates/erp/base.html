@@ -1,0 +1,970 @@
+﻿<!DOCTYPE html>
+
+<html lang="fr">
+
+  <head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{% block title %}Nouvelle Logistique{% endblock %}</title>
+
+    <style>
+
+      @import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-50..200");
+
+
+
+      :root {
+
+        color-scheme: light;
+
+        --bg-top: #f8f4ee;
+        --bg: #f3f4f1;
+
+        --panel: #ffffff;
+
+        --text: #1d1f23;
+
+        --muted: #667085;
+
+        --accent: #0b5f4a;
+
+        --accent-2: #c77b20;
+
+        --border: #e1ddd2;
+
+        --card: #fefaf4;
+        --table-bg: #ffffff;
+        --table-head-start: #f8faf9;
+        --table-head-end: #f3f6f5;
+        --table-head-text: #4f615c;
+        --row-even: #fcfcfb;
+        --row-hover: #f3f8f6;
+        --action-bg: #edf6f2;
+        --action-border: #cfe4dc;
+
+      }
+
+      body.theme-dark {
+        color-scheme: dark;
+        --bg-top: #11161a;
+        --bg: #0f1317;
+        --panel: #161c21;
+        --text: #e6edf3;
+        --muted: #9ca9b5;
+        --accent: #1f8f74;
+        --accent-2: #c28a2c;
+        --border: #2a343d;
+        --card: #1b2329;
+        --table-bg: #182028;
+        --table-head-start: #202a33;
+        --table-head-end: #1a242c;
+        --table-head-text: #c8d2da;
+        --row-even: #1b232b;
+        --row-hover: #22303a;
+        --action-bg: #203038;
+        --action-border: #2f4653;
+      }
+
+      body.theme-light {
+        color-scheme: light;
+      }
+
+
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 500,
+          "GRAD" 0,
+          "opsz" 20;
+        line-height: 1;
+      }
+
+
+
+      body {
+
+        font-family: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+
+        background: radial-gradient(circle at top, var(--bg-top), var(--bg));
+
+        color: var(--text);
+
+      }
+
+
+
+      .layout {
+        --sidebar-width: 270px;
+        display: grid;
+        grid-template-columns: var(--sidebar-width) 1fr;
+        min-height: 100vh;
+        margin: 0;
+        transition: grid-template-columns 0.22s ease;
+      }
+
+      body.sidebar-collapsed .layout {
+        --sidebar-width: 86px;
+      }
+
+      aside {
+        background:
+          radial-gradient(120% 90% at 0% 0%, rgba(21, 119, 94, 0.28) 0%, rgba(21, 119, 94, 0) 55%),
+          radial-gradient(120% 80% at 100% 100%, rgba(199, 123, 32, 0.16) 0%, rgba(199, 123, 32, 0) 58%),
+          linear-gradient(165deg, #122522 0%, #10201d 48%, #0d1918 100%);
+        color: #f8f4ee;
+        padding: 16px 12px;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        transition: padding 0.22s ease;
+      }
+
+      .sidebar-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        gap: 8px;
+      }
+
+      .brand-wrap h1 {
+        margin: 0;
+        font-size: 18px;
+        font-family: "Archivo", "Segoe UI", Arial, sans-serif;
+        letter-spacing: 0.4px;
+      }
+
+      .brand-wrap p {
+        color: #aabdb6;
+        margin: 2px 0 0;
+        font-size: 12px;
+      }
+
+      .sidebar-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8f4ee;
+        cursor: pointer;
+      }
+
+      .sidebar-toggle:hover {
+        background: rgba(255, 255, 255, 0.16);
+      }
+
+      .nav-group {
+        margin-bottom: 14px;
+      }
+
+      .nav-group h4 {
+        margin: 0 0 8px;
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        color: #90a39d;
+        padding-left: 8px;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 10px;
+        margin-bottom: 5px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #f8f4ee;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        font-weight: 600;
+        transition: all 0.15s ease;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.14);
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+
+      .nav-link .nav-icon {
+        font-size: 18px;
+        width: 20px;
+        text-align: center;
+        color: #d7e3df;
+      }
+
+      .nav-link .nav-label {
+        white-space: nowrap;
+      }
+
+      body.sidebar-collapsed .brand-wrap p,
+      body.sidebar-collapsed .brand-wrap h1,
+      body.sidebar-collapsed .brand-wrap .brand-full,
+      body.sidebar-collapsed .nav-group h4,
+      body.sidebar-collapsed .nav-link .nav-label {
+        display: none;
+      }
+
+      body.sidebar-collapsed aside {
+        padding: 16px 8px;
+      }
+
+      body.sidebar-collapsed .sidebar-top {
+        justify-content: center;
+      }
+
+      body.sidebar-collapsed .nav-link {
+        justify-content: center;
+        {% comment %} padding: 9px 0; {% endcomment %}
+      }
+
+
+
+
+      header {
+
+        background: var(--panel);
+
+        border-bottom: 1px solid var(--border);
+
+        padding: 18px 28px;
+
+      }
+
+      .header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+
+
+      header h2 {
+
+        margin: 0;
+
+        font-size: 18px;
+
+        font-weight: 600;
+
+      }
+
+      .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--card);
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .theme-toggle:hover {
+        filter: brightness(1.06);
+      }
+
+
+
+      .container {
+
+        max-width: 1200px;
+
+        margin: 0 auto;
+
+        padding: 16px 24px 48px;
+
+      }
+
+      .container > :first-child {
+        margin-top: 0 !important;
+      }
+
+
+
+      .panel {
+
+        background: var(--panel);
+
+        border: 1px solid var(--border);
+
+        border-radius: 10px;
+
+        padding: 20px;
+
+      }
+
+      .panel > :first-child {
+        margin-top: 0;
+      }
+
+
+
+      .grid {
+
+        display: grid;
+
+        gap: 16px;
+
+      }
+
+
+
+      .grid-3 {
+
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+
+      }
+
+
+
+      .card {
+
+        background: var(--card);
+
+        border: 1px solid var(--border);
+
+        border-radius: 12px;
+
+        padding: 16px;
+
+      }
+
+
+
+      .card h3 {
+
+        margin: 0 0 6px;
+
+        font-size: 14px;
+
+        color: var(--muted);
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.05em;
+
+      }
+
+
+
+      .card .value {
+
+        font-size: 24px;
+
+        font-weight: 700;
+
+        font-family: "Archivo", "Segoe UI", Arial, sans-serif;
+
+      }
+
+
+
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 0;
+        background: var(--table-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      h2 + table,
+      h3 + table,
+      .list-meta + table,
+      p + table {
+        margin-top: 12px;
+      }
+
+
+
+      th,
+      td {
+        padding: 11px 12px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        vertical-align: middle;
+      }
+
+
+
+      thead th {
+        background: linear-gradient(180deg, var(--table-head-start) 0%, var(--table-head-end) 100%);
+        color: var(--table-head-text);
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1px solid var(--border);
+      }
+
+      tbody tr:nth-child(even) {
+        background: var(--row-even);
+      }
+
+      tbody tr:hover {
+        background: var(--row-hover);
+      }
+
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+      }
+
+      .actions a {
+        margin-right: 0;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        color: var(--accent);
+        text-decoration: none;
+        background: var(--action-bg);
+        border: 1px solid var(--action-border);
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .actions a .material-symbols-outlined {
+        font-size: 19px;
+      }
+
+      .actions a:hover {
+        background: #e2f1eb;
+      }
+
+      .actions a.action-delete {
+        color: #9d1c20;
+        background: #ffecec;
+        border-color: #f4b6b8;
+      }
+
+      .actions a.action-view {
+        color: #1f4a75;
+        background: #eef5ff;
+        border-color: #c8dbf6;
+      }
+
+      .actions a.action-pdf {
+        color: #8a5a00;
+        background: #fff6e6;
+        border-color: #f5d8a8;
+      }
+
+
+
+      .button {
+        display: inline-block;
+        padding: 9px 13px;
+        border-radius: 9px;
+        background: var(--accent);
+        color: #fff;
+        text-decoration: none;
+        font-weight: 700;
+        border: 1px solid #084c3c;
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+        transition: transform .15s ease, filter .15s ease;
+      }
+
+      .button:hover {
+        filter: brightness(1.05);
+        transform: translateY(-1px);
+      }
+
+      .button.secondary {
+        background: #0f7a61;
+        border-color: #0c624e;
+      }
+
+
+
+      form label {
+
+        display: block;
+
+        margin-top: 12px;
+
+        font-weight: 600;
+
+      }
+
+
+
+      form input,
+
+      form select,
+
+      form textarea {
+
+        width: 100%;
+
+        padding: 8px;
+
+        margin-top: 6px;
+
+        border-radius: 6px;
+
+        border: 1px solid var(--border);
+
+        font: inherit;
+
+      }
+
+
+
+      .form-actions {
+
+        margin-top: 18px;
+
+        display: flex;
+
+        gap: 12px;
+
+      }
+
+
+
+      .list-meta {
+
+        color: var(--muted);
+
+        font-size: 14px;
+
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid transparent;
+      }
+
+      .badge-success {
+        color: #0b5f4a;
+        background: #e9f7f2;
+        border-color: #b9e7d6;
+      }
+
+      .badge-warning {
+        color: #8a5a00;
+        background: #fff6e6;
+        border-color: #f5d8a8;
+      }
+
+      .badge-danger {
+        color: #9d1c20;
+        background: #ffecec;
+        border-color: #f4b6b8;
+      }
+
+      .badge-muted {
+        color: #475467;
+        background: #f2f4f7;
+        border-color: #d0d5dd;
+      }
+
+      .alert {
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 12px;
+        border: 1px solid transparent;
+        font-weight: 600;
+      }
+
+      .alert-success {
+        color: #0b5f4a;
+        background: #e9f7f2;
+        border-color: #b9e7d6;
+      }
+
+      .alert-error {
+        color: #9d1c20;
+        background: #ffecec;
+        border-color: #f4b6b8;
+      }
+
+      .alert-info {
+        color: #1f4a75;
+        background: #eef5ff;
+        border-color: #c8dbf6;
+      }
+
+
+
+      .fullscreen-map {
+
+        position: fixed;
+
+        top: 0;
+
+        left: 0;
+
+        width: 100vw !important;
+
+        height: 100vh !important;
+
+        z-index: 9999;
+
+        background: #fff;
+
+      }
+
+
+
+      body.fullscreen-open {
+
+        overflow: hidden;
+
+      }
+
+
+
+      @media (max-width: 900px) {
+
+        .layout {
+
+          grid-template-columns: 1fr;
+
+        }
+
+
+
+        aside {
+
+          position: sticky;
+
+          top: 0;
+
+          z-index: 10;
+
+        }
+
+        table {
+          display: block;
+          overflow-x: auto;
+          white-space: nowrap;
+          -webkit-overflow-scrolling: touch;
+        }
+
+      }
+
+    </style>
+
+    <link
+
+      rel="stylesheet"
+
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+
+      crossorigin=""
+
+    />
+
+    <link
+
+      rel="stylesheet"
+
+      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
+
+      crossorigin=""
+
+    />
+
+    <link
+
+      rel="stylesheet"
+
+      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"
+
+      crossorigin=""
+
+    />
+
+  </head>
+
+  <body>
+
+    <div class="layout">
+
+      <aside>
+        <div class="sidebar-top">
+          <div class="brand-wrap">
+            <h1><span class="brand-full">Nouvelle</span> Logistique</h1>
+            <p>ERP transport carburant - Mali</p>
+          </div>
+          <button id="sidebar-toggle" class="sidebar-toggle" type="button" title="Reduire/Agrandir">
+            <span id="sidebar-toggle-icon" class="material-symbols-outlined">left_panel_close</span>
+          </button>
+        </div>
+
+        <div class="nav-group">
+
+          <h4>Dashboard</h4>
+
+          <a class="nav-link" href="{% url 'erp:dashboard' %}">
+            <span class="nav-icon material-symbols-outlined">space_dashboard</span>
+            <span class="nav-label">Vue globale</span>
+          </a>
+
+          <a class="nav-link" href="{% url 'erp:module_telematics' %}">
+            <span class="nav-icon material-symbols-outlined">location_searching</span>
+            <span class="nav-label">Telematique & GPS</span>
+          </a>
+
+        </div>
+
+
+
+        <div class="nav-group">
+
+          <h4>Exploitation</h4>
+
+          <a class="nav-link" href="{% url 'erp:module_orders' %}">
+            <span class="nav-icon material-symbols-outlined">assignment</span>
+            <span class="nav-label">Ordres</span>
+          </a>
+
+          <a class="nav-link" href="{% url 'erp:module_deliveries' %}">
+            <span class="nav-icon material-symbols-outlined">local_shipping</span>
+            <span class="nav-label">Livraisons</span>
+          </a>
+
+        </div>
+
+
+
+        <div class="nav-group">
+
+          <h4>Ressources</h4>
+
+          <a class="nav-link" href="{% url 'erp:module_fleet' %}">
+            <span class="nav-icon material-symbols-outlined">directions_bus</span>
+            <span class="nav-label">Parc roulant</span>
+          </a>
+          <a class="nav-link" href="{% url 'erp:module_garage' %}">
+            <span class="nav-icon material-symbols-outlined">build</span>
+            <span class="nav-label">Garage</span>
+          </a>
+          <a class="nav-link" href="{% url 'erp:module_hr' %}">
+            <span class="nav-icon material-symbols-outlined">groups</span>
+            <span class="nav-label">Ressources humaines</span>
+          </a>
+          <a class="nav-link" href="{% url 'erp:module_fuel' %}">
+            <span class="nav-icon material-symbols-outlined">local_gas_station</span>
+            <span class="nav-label">Carburant</span>
+          </a>
+
+        </div>
+
+
+
+        <div class="nav-group">
+
+          <h4>Finance</h4>
+          <a class="nav-link" href="{% url 'erp:module_accounting' %}">
+            <span class="nav-icon material-symbols-outlined">account_balance</span>
+            <span class="nav-label">Comptabilite</span>
+          </a>
+
+        </div>
+
+
+
+        <div class="nav-group">
+
+          <h4>Référentiels</h4>
+
+          <a class="nav-link" href="{% url 'erp:client_list' %}">
+            <span class="nav-icon material-symbols-outlined">badge</span>
+            <span class="nav-label">Clients</span>
+          </a>
+
+          <a class="nav-link" href="{% url 'erp:site_list' %}">
+            <span class="nav-icon material-symbols-outlined">warehouse</span>
+            <span class="nav-label">Sites</span>
+          </a>
+
+          <a class="nav-link" href="{% url 'erp:fueltype_list' %}">
+            <span class="nav-icon material-symbols-outlined">opacity</span>
+            <span class="nav-label">Types carburant</span>
+          </a>
+
+        </div>
+
+      </aside>
+
+
+
+      <div>
+
+        <header>
+          <div class="header-bar">
+            <h2>{% block header_title %}ERP Transport Carburant{% endblock %}</h2>
+            <button id="theme-toggle" class="theme-toggle" type="button" title="Mode sombre/claire">
+              <span id="theme-toggle-icon" class="material-symbols-outlined">dark_mode</span>
+            </button>
+          </div>
+
+        </header>
+
+        <main class="container">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% else %}alert-info{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          {% block content %}{% endblock %}
+
+        </main>
+
+      </div>
+
+    </div>
+
+    <script
+
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+
+      crossorigin=""
+
+    ></script>
+
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin=""></script>
+    <script>
+      (function () {
+        const body = document.body;
+        const toggle = document.getElementById("sidebar-toggle");
+        const icon = document.getElementById("sidebar-toggle-icon");
+        if (!toggle || !icon) return;
+
+        const key = "nl.sidebar.collapsed";
+        const saved = localStorage.getItem(key);
+        if (saved === "1") {
+          body.classList.add("sidebar-collapsed");
+          icon.textContent = "left_panel_open";
+        }
+
+        toggle.addEventListener("click", function () {
+          const collapsed = body.classList.toggle("sidebar-collapsed");
+          icon.textContent = collapsed ? "left_panel_open" : "left_panel_close";
+          localStorage.setItem(key, collapsed ? "1" : "0");
+        });
+      })();
+
+      (function () {
+        const body = document.body;
+        const btn = document.getElementById("theme-toggle");
+        const icon = document.getElementById("theme-toggle-icon");
+        if (!btn || !icon) return;
+
+        const key = "nl.theme";
+        const preferredDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const saved = localStorage.getItem(key);
+        const mode = saved || (preferredDark ? "dark" : "light");
+
+        function applyTheme(theme) {
+          body.classList.remove("theme-light", "theme-dark");
+          body.classList.add(theme === "dark" ? "theme-dark" : "theme-light");
+          icon.textContent = theme === "dark" ? "light_mode" : "dark_mode";
+          btn.setAttribute("aria-label", theme === "dark" ? "Activer mode clair" : "Activer mode sombre");
+        }
+
+        applyTheme(mode);
+
+        btn.addEventListener("click", function () {
+          const isDark = body.classList.contains("theme-dark");
+          const next = isDark ? "light" : "dark";
+          applyTheme(next);
+          localStorage.setItem(key, next);
+        });
+      })();
+
+      (function () {
+        const links = document.querySelectorAll(".actions a");
+        if (!links.length) return;
+
+        function actionMeta(link) {
+          const text = (link.textContent || "").toLowerCase().trim();
+          const href = (link.getAttribute("href") || "").toLowerCase();
+
+          if (text.includes("supprim") || href.includes("/supprimer/")) {
+            return { icon: "delete", cls: "action-delete", label: "Supprimer" };
+          }
+          if (
+            text.includes("pdf") ||
+            text.includes("export") ||
+            href.includes("/pdf/") ||
+            href.includes("export")
+          ) {
+            return { icon: "picture_as_pdf", cls: "action-pdf", label: "PDF" };
+          }
+          if (text.includes("modifi") || href.includes("/modifier/")) {
+            return { icon: "edit", cls: "", label: "Modifier" };
+          }
+          if (text.includes("voir") || text.includes("detail") || href.includes("/detail/")) {
+            return { icon: "visibility", cls: "action-view", label: "Voir" };
+          }
+          return { icon: "open_in_new", cls: "", label: (link.textContent || "").trim() || "Action" };
+        }
+
+        links.forEach((link) => {
+          const meta = actionMeta(link);
+          if (meta.cls) link.classList.add(meta.cls);
+          link.setAttribute("title", meta.label);
+          link.setAttribute("aria-label", meta.label);
+          link.innerHTML = `<span class="material-symbols-outlined" aria-hidden="true">${meta.icon}</span>`;
+        });
+      })();
+    </script>
+
+  </body>
+
+</html>
+
+
+
+
+
+

@@ -1,0 +1,81 @@
+{% extends "erp/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h2>{{ title }}</h2>
+    <p class="list-meta">Gestion des chauffeurs.</p>
+    <p>
+      <a class="button" href="{% url 'erp:driver_create' %}">Ajouter</a>
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Chauffeur</th>
+          <th>Telephone</th>
+          <th>Permis</th>
+          <th>Image permis</th>
+          <th>Expire le</th>
+          <th>Certificat de jaugeage</th>
+          <th>Cahier de transport</th>
+          <th>Apprentis</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td>{{ item.prenom }} {{ item.nom }}</td>
+            <td>{{ item.telephone }}</td>
+            <td>{{ item.numero_permis }}</td>
+            <td>
+              {% if item.permis_image %}
+                <a href="{{ item.permis_image.url }}" target="_blank" rel="noopener">Voir</a>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>{{ item.permis_expire_le }}</td>
+            <td>
+              {% if item.certificat_jaugeage_image %}
+                <a href="{{ item.certificat_jaugeage_image.url }}" target="_blank" rel="noopener">Voir</a>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              {% if item.cahier_transport %}
+                <a href="{{ item.cahier_transport.url }}" target="_blank" rel="noopener">Voir</a>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              {% with apprentis=item.apprentis.all %}
+                {% if apprentis %}
+                  {% for apprenti in apprentis %}
+                    {{ apprenti.prenom }} {{ apprenti.nom }}{% if not forloop.last %}, {% endif %}
+                  {% endfor %}
+                {% else %}
+                  -
+                {% endif %}
+              {% endwith %}
+            </td>
+            <td>{{ item.get_statut_display }}</td>
+            <td class="actions">
+              <a href="{% url 'erp:driver_update' item.pk %}">Modifier</a>
+              <a href="{% url 'erp:driver_delete' item.pk %}">Supprimer</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="10">Aucun chauffeur pour le moment.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Encaissements{% endblock %}
+{% block header_title %}Encaissements{% endblock %}
+
+{% block content %}
+  {% include "erp/partials/date_filters.html" %}
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Encaissements</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Facture</th>
+          <th>Client</th>
+          <th>Montant</th>
+          <th>Payé le</th>
+          <th>Méthode</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for payment in items %}
+          <tr>
+            <td>{{ payment.invoice.numero }}</td>
+            <td>{{ payment.invoice.client }}</td>
+            <td>{{ payment.montant }}</td>
+            <td>{{ payment.paye_le }}</td>
+            <td>{{ payment.methode }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">Aucun encaissement.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

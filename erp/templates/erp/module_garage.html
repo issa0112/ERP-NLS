@@ -1,0 +1,359 @@
+﻿{% extends "erp/base.html" %}
+
+{% block title %}Garage{% endblock %}
+{% block header_title %}Module Garage{% endblock %}
+
+{% block content %}
+  <style>
+    .gar-hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+    .gar-hero h2 {
+      margin: 0;
+    }
+    .gar-hero .list-meta {
+      margin-top: 6px;
+      margin-bottom: 0;
+    }
+    .gar-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .gar-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #eef5ff;
+      border: 1px solid #c8dbf6;
+      color: #1f4a75;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .gar-chip.warn {
+      background: #fff6e6;
+      border-color: #f5d8a8;
+      color: #8a5a00;
+    }
+    .gar-chip.good {
+      background: #e9f7f2;
+      border-color: #b9e7d6;
+      color: #0b5f4a;
+    }
+    .gar-chip.danger {
+      background: #ffecec;
+      border-color: #f4b6b8;
+      color: #9d1c20;
+    }
+    .gar-filter-form {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      justify-content: flex-start;
+    }
+    .gar-filter-form select {
+      min-width: 98px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 12px;
+      width: auto;
+    }
+    .gar-kpi {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: linear-gradient(145deg, #fff, #f9fafb);
+      min-height: 96px;
+    }
+    .gar-kpi-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .gar-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #0b5f4a;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .gar-kpi .value {
+      font-size: 22px;
+      line-height: 1.1;
+    }
+    .gar-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .gar-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid #0b5f4a;
+      background: #0b5f4a;
+      color: #fff;
+      transition: all .15s ease;
+    }
+    .gar-btn:hover {
+      transform: translateY(-1px);
+    }
+    .gar-btn .gar-arrow {
+      opacity: .65;
+      font-weight: 800;
+    }
+  </style>
+
+  <div class="panel">
+    <div class="gar-hero">
+      <div>
+        <h2>Pilotage atelier</h2>
+        <p class="list-meta">Gestion professionnelle des interventions, maintenance preventive, qualite et stock de pieces.</p>
+        <form method="get" class="gar-filter-form">
+          <label for="gar_flux_scope">Flux</label>
+          <select id="gar_flux_scope" name="flux_scope" onchange="this.form.submit()">
+            {% for value, label in badge_filters.flux_scope_choices %}
+              <option value="{{ value }}" {% if badge_filters.flux_scope == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <label for="gar_cycle">Cycle</label>
+          <select id="gar_cycle" name="cycle" onchange="this.form.submit()">
+            {% for value, label in badge_filters.cycle_choices %}
+              <option value="{{ value }}" {% if badge_filters.cycle == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+      <div class="gar-badges">
+        <span class="gar-chip {{ badges.flux_level }}">Flux: {{ badges.flux_label }}</span>
+        <span class="gar-chip">Cycle: {{ badges.cycle_label }}</span>
+        <span class="gar-chip {{ badges.controle_level }}">Controle: {{ badges.controle_label }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-3" style="margin-top: 16px;">
+    <div class="gar-kpi">
+      <div class="gar-kpi-head"><span>Ordres ouverts</span><span class="gar-icon">OO</span></div>
+      <div class="value">{{ stats.workorders_open }}</div>
+    </div>
+    <div class="gar-kpi">
+      <div class="gar-kpi-head"><span>Priorite critique</span><span class="gar-icon">PC</span></div>
+      <div class="value">{{ stats.workorders_critical }}</div>
+    </div>
+    <div class="gar-kpi">
+      <div class="gar-kpi-head"><span>Termines ce mois</span><span class="gar-icon">TM</span></div>
+      <div class="value">{{ stats.workorders_done_month }}</div>
+    </div>
+    <div class="gar-kpi">
+      <div class="gar-kpi-head"><span>Alertes stock</span><span class="gar-icon">AS</span></div>
+      <div class="value">{{ stats.parts_alert }}</div>
+    </div>
+    <div class="gar-kpi">
+      <div class="gar-kpi-head"><span>Pieces gerees</span><span class="gar-icon">PG</span></div>
+      <div class="value">{{ stats.parts_count }}</div>
+    </div>
+    <div class="gar-kpi">
+      <div class="gar-kpi-head"><span>Services standards</span><span class="gar-icon">SS</span></div>
+      <div class="value">{{ stats.services_count }}</div>
+    </div>
+  </div>
+
+  <div class="grid grid-3" style="margin-top: 20px;">
+    <div class="panel">
+      <h3>Interventions</h3>
+      <p class="list-meta">Ordres, planning et documents atelier.</p>
+      <div class="gar-actions">
+        <a class="gar-btn" href="{% url 'erp:garage_workorder_create' %}"><span>Nouvel ordre atelier</span><span class="gar-arrow">-></span></a>
+        <a class="gar-btn" href="{% url 'erp:garage_workorder_list' %}"><span>Tous les ordres</span><span class="gar-arrow">-></span></a>
+        <a class="gar-btn" href="{% url 'erp:garage_planning' %}"><span>Planning atelier</span><span class="gar-arrow">-></span></a>
+        <a class="gar-btn" href="{% url 'erp:garage_document_list' %}"><span>Documents atelier</span><span class="gar-arrow">-></span></a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Stock & services</h3>
+      <p class="list-meta">Pieces, seuils et catalogue d'interventions.</p>
+      <div class="gar-actions">
+        <a class="gar-btn" href="{% url 'erp:garage_part_create' %}"><span>Nouvelle piece</span><span class="gar-arrow">-></span></a>
+        <a class="gar-btn" href="{% url 'erp:garage_part_list' %}"><span>Stock pieces</span><span class="gar-arrow">-></span></a>
+        <a class="gar-btn" href="{% url 'erp:garage_service_list' %}"><span>Services garage</span><span class="gar-arrow">-></span></a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Parc lie au garage</h3>
+      <p class="list-meta">Acces rapide aux entites operationnelles.</p>
+      <div class="gar-actions">
+        <a class="gar-btn" href="{% url 'erp:vehicle_list' %}"><span>Camions</span><span class="gar-arrow">-></span></a>
+        <a class="gar-btn" href="{% url 'erp:driver_list' %}"><span>Chauffeurs</span><span class="gar-arrow">-></span></a>
+        <a class="gar-btn" href="{% url 'erp:apprentice_list' %}"><span>Apprentis</span><span class="gar-arrow">-></span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top: 20px;">
+    <div class="panel">
+      <h3>Alertes maintenance preventive</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Camion</th>
+            <th>Service</th>
+            <th>Dernier ordre</th>
+            <th>Jours restants</th>
+            <th>KM restants</th>
+            <th>Etat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alert in preventive_alerts %}
+            <tr>
+              <td>{{ alert.vehicle.immatriculation }}</td>
+              <td>{{ alert.service.nom }}</td>
+              <td>{{ alert.last_wo.reference }}</td>
+              <td>{{ alert.days_remaining|default:"-" }}</td>
+              <td>{{ alert.km_remaining|default:"-" }}</td>
+              <td>
+                {% if alert.due_level == "danger" %}
+                  <span class="badge badge-danger">{{ alert.reason }}</span>
+                {% else %}
+                  <span class="badge badge-warning">{{ alert.reason }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6">Aucune alerte preventive.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>Derniers ordres atelier</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Camion</th>
+            <th>Service</th>
+            <th>Priorite</th>
+            <th>Statut</th>
+            <th>SLA</th>
+            <th>Cout total</th>
+            <th>PDF</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in recent_workorders %}
+            <tr>
+              <td>{{ item.reference }}</td>
+              <td>{{ item.vehicle.immatriculation }}</td>
+              <td>{{ item.service_type|default:"-" }}</td>
+              <td>{{ item.get_priorite_display }}</td>
+              <td>{{ item.get_statut_display }}</td>
+              <td>
+                {% if item.sla_status == "retard" %}
+                  <span class="badge badge-danger">Retard {{ item.sla_delay_hours }} h</span>
+                {% elif item.sla_status == "a_l_heure" %}
+                  <span class="badge badge-success">A l'heure</span>
+                {% else %}
+                  <span class="badge badge-muted">Non planifie</span>
+                {% endif %}
+              </td>
+              <td>{{ item.cout_total }}</td>
+              <td><a href="{% url 'erp:garage_workorder_pdf' item.pk %}">Exporter</a></td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8">Aucun ordre atelier.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>Pieces en alerte stock</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Piece</th>
+            <th>Stock</th>
+            <th>Min</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for part in stock_alerts %}
+            <tr>
+              <td>{{ part.reference }}</td>
+              <td>{{ part.designation }}</td>
+              <td>{{ part.stock_actuel }}</td>
+              <td>{{ part.stock_min }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4">Aucune alerte stock.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Documents atelier recents</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Ordre</th>
+          <th>Titre</th>
+          <th>Date</th>
+          <th>Fichier</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doc in documents %}
+          <tr>
+            <td>{{ doc.workorder.reference }}</td>
+            <td>{{ doc.titre|default:"-" }}</td>
+            <td>{{ doc.created_at }}</td>
+            <td><a href="{{ doc.fichier.url }}" target="_blank" rel="noopener">Voir</a></td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Aucun document atelier.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

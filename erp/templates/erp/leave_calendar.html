@@ -1,0 +1,104 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Calendrier des congés{% endblock %}
+{% block header_title %}Calendrier des congés{% endblock %}
+
+{% block content %}
+  <div class="panel">
+    <h3>Planning des congés</h3>
+    <p class="list-meta">Vue mensuelle des absences et congés.</p>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <div style="display: flex; align-items: center; gap: 12px; justify-content: space-between;">
+      <button id="prev-month" class="button secondary" type="button">Mois précédent</button>
+      <h3 id="month-label" style="margin: 0;"></h3>
+      <button id="next-month" class="button secondary" type="button">Mois suivant</button>
+    </div>
+    <div id="calendar" style="margin-top: 16px;"></div>
+  </div>
+
+  <script>
+    const leaves = {{ leave_json|safe }};
+    const monthLabel = document.getElementById("month-label");
+    const calendarRoot = document.getElementById("calendar");
+    const prevBtn = document.getElementById("prev-month");
+    const nextBtn = document.getElementById("next-month");
+    let current = new Date();
+
+    function formatMonth(date) {
+      return date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+    }
+
+    function buildCalendar(date) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const startDay = (firstDay.getDay() + 6) % 7; // Monday as first day
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      monthLabel.textContent = formatMonth(date);
+      calendarRoot.innerHTML = "";
+
+      const table = document.createElement("table");
+      const head = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].forEach((d) => {
+        const th = document.createElement("th");
+        th.textContent = d;
+        headRow.appendChild(th);
+      });
+      head.appendChild(headRow);
+      table.appendChild(head);
+
+      const body = document.createElement("tbody");
+      let day = 1;
+      for (let i = 0; i < 6; i++) {
+        const row = document.createElement("tr");
+        for (let j = 0; j < 7; j++) {
+          const cell = document.createElement("td");
+          if (i === 0 && j < startDay) {
+            cell.textContent = "";
+          } else if (day > daysInMonth) {
+            cell.textContent = "";
+          } else {
+            const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            const title = document.createElement("div");
+            title.style.fontWeight = "700";
+            title.textContent = day;
+            cell.appendChild(title);
+
+            const dayLeaves = leaves.filter((l) => l.start <= dateStr && l.end >= dateStr);
+            dayLeaves.forEach((l) => {
+              const badge = document.createElement("div");
+              badge.style.marginTop = "4px";
+              badge.style.padding = "4px 6px";
+              badge.style.borderRadius = "6px";
+              badge.style.background = "#f2efe7";
+              badge.style.fontSize = "12px";
+              badge.textContent = `${l.employee} (${l.type})`;
+              cell.appendChild(badge);
+            });
+            day++;
+          }
+          row.appendChild(cell);
+        }
+        body.appendChild(row);
+        if (day > daysInMonth) break;
+      }
+      table.appendChild(body);
+      calendarRoot.appendChild(table);
+    }
+
+    prevBtn.addEventListener("click", () => {
+      current = new Date(current.getFullYear(), current.getMonth() - 1, 1);
+      buildCalendar(current);
+    });
+    nextBtn.addEventListener("click", () => {
+      current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+      buildCalendar(current);
+    });
+
+    buildCalendar(current);
+  </script>
+{% endblock %}

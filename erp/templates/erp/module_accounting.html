@@ -1,0 +1,262 @@
+{% extends "erp/base.html" %}
+
+{% block title %}Comptabilite{% endblock %}
+{% block header_title %}Module Comptabilite{% endblock %}
+
+{% block content %}
+  <style>
+    .acc-hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+    .acc-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .acc-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #eef5ff;
+      border: 1px solid #c8dbf6;
+      color: #1f4a75;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .acc-chip.warn {
+      background: #fff6e6;
+      border-color: #f5d8a8;
+      color: #8a5a00;
+    }
+    .acc-chip.good {
+      background: #e9f7f2;
+      border-color: #b9e7d6;
+      color: #0b5f4a;
+    }
+    .acc-chip.danger {
+      background: #ffecec;
+      border-color: #f4b6b8;
+      color: #9d1c20;
+    }
+    .acc-filter-form {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      justify-content: flex-start;
+    }
+    .acc-filter-form select {
+      min-width: 98px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 12px;
+      width: auto;
+    }
+    .acc-kpi {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: linear-gradient(145deg, #fff, #f9fafb);
+      min-height: 96px;
+    }
+    .acc-kpi-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .acc-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #0b5f4a;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .acc-kpi .value {
+      font-size: 22px;
+      line-height: 1.1;
+    }
+    .acc-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .acc-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid transparent;
+      transition: all .15s ease;
+    }
+    .acc-btn:hover {
+      transform: translateY(-1px);
+    }
+    .acc-btn.main {
+      background: #0b5f4a;
+      color: #fff;
+      border-color: #0b5f4a;
+    }
+    .acc-btn.alt {
+      background: #0b5f4a;
+      color: #fff;
+      border-color: #0b5f4a;
+    }
+    .acc-btn .acc-arrow {
+      opacity: .65;
+      font-weight: 800;
+    }
+  </style>
+
+  <div class="panel">
+    <div class="acc-hero">
+      <div>
+        <h2>Comptabilite</h2>
+        <p class="list-meta">Espace centralise pour la gestion financiere et sociale.</p>
+        <form method="get" class="acc-filter-form">
+          <label for="acc_flux_scope">Flux</label>
+          <select id="acc_flux_scope" name="flux_scope" onchange="this.form.submit()">
+            {% for value, label in badge_filters.flux_scope_choices %}
+              <option value="{{ value }}" {% if badge_filters.flux_scope == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <label for="acc_cycle">Cycle</label>
+          <select id="acc_cycle" name="cycle" onchange="this.form.submit()">
+            {% for value, label in badge_filters.cycle_choices %}
+              <option value="{{ value }}" {% if badge_filters.cycle == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+      <div class="acc-badges">
+        <span class="acc-chip {{ badges.flux_level }}">Flux: {{ badges.flux_label }}</span>
+        <span class="acc-chip">Cycle: {{ badges.cycle_label }}</span>
+        <span class="acc-chip {{ badges.controle_level }}">Controle: {{ badges.controle_label }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-3" style="margin-top: 16px;">
+    <div class="acc-kpi">
+      <div class="acc-kpi-head"><span>Factures</span><span class="acc-icon">FA</span></div>
+      <div class="value">{{ stats.factures }}</div>
+    </div>
+    <div class="acc-kpi">
+      <div class="acc-kpi-head"><span>Encaissements</span><span class="acc-icon">EN</span></div>
+      <div class="value">{{ stats.encaissements }}</div>
+    </div>
+    <div class="acc-kpi">
+      <div class="acc-kpi-head"><span>Avoirs</span><span class="acc-icon">AV</span></div>
+      <div class="value">{{ stats.avoirs }}</div>
+    </div>
+    <div class="acc-kpi">
+      <div class="acc-kpi-head"><span>Depenses</span><span class="acc-icon">DE</span></div>
+      <div class="value">{{ stats.depenses }}</div>
+    </div>
+    <div class="acc-kpi">
+      <div class="acc-kpi-head"><span>Personnel</span><span class="acc-icon">PE</span></div>
+      <div class="value">{{ stats.personnel }}</div>
+    </div>
+    <div class="acc-kpi">
+      <div class="acc-kpi-head"><span>Salaires</span><span class="acc-icon">SA</span></div>
+      <div class="value">{{ stats.salaires }}</div>
+    </div>
+  </div>
+
+  <div class="grid grid-3" style="margin-top: 20px;">
+    <div class="panel">
+      <h3>Finance</h3>
+      <p class="list-meta">Suivi facturation, tresorerie et reporting.</p>
+      <div class="acc-actions">
+        <a class="acc-btn main" href="{% url 'erp:finance_report' %}"><span>Rapport financier</span><span class="acc-arrow">-></span></a>
+        <a class="acc-btn alt" href="{% url 'erp:invoice_list' %}"><span>Factures</span><span class="acc-arrow">-></span></a>
+        <a class="acc-btn alt" href="{% url 'erp:payment_list' %}"><span>Encaissements</span><span class="acc-arrow">-></span></a>
+        <a class="acc-btn alt" href="{% url 'erp:creditnote_list' %}"><span>Avoirs</span><span class="acc-arrow">-></span></a>
+        <a class="acc-btn alt" href="{% url 'erp:expense_list' %}"><span>Depenses</span><span class="acc-arrow">-></span></a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Social & paie</h3>
+      <p class="list-meta">Gestion RH reliee a la comptabilite salariale.</p>
+      <div class="acc-actions">
+        <a class="acc-btn main" href="{% url 'erp:employee_list' %}"><span>Personnel</span><span class="acc-arrow">-></span></a>
+        <a class="acc-btn alt" href="{% url 'erp:salary_list' %}"><span>Salaires</span><span class="acc-arrow">-></span></a>
+        <a class="acc-btn alt" href="{% url 'erp:salary_contribution_list' %}"><span>Cotisations</span><span class="acc-arrow">-></span></a>
+        <a class="acc-btn alt" href="{% url 'erp:contribution_type_list' %}"><span>Types cotisations</span><span class="acc-arrow">-></span></a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Dernieres factures</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Numero</th>
+            <th>Client</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for invoice in recent_invoices %}
+            <tr>
+              <td>{{ invoice.numero }}</td>
+              <td>{{ invoice.client }}</td>
+              <td>{{ invoice.total }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3">Aucune facture.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top: 20px;">
+    <h3>Dernieres depenses</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Categorie</th>
+          <th>Description</th>
+          <th>Montant</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in recent_expenses %}
+          <tr>
+            <td>{{ item.depense_le }}</td>
+            <td>{{ item.categorie|default:"-" }}</td>
+            <td>{{ item.description }}</td>
+            <td>{{ item.montant }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4">Aucune depense.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
