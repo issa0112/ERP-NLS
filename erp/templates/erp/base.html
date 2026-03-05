@@ -685,33 +685,88 @@
 
 
 
-      @media (max-width: 900px) {
-
+      @media (max-width: 1100px) {
         .layout {
+          --sidebar-width: 230px;
+        }
+        .container {
+          padding: 14px 16px 36px;
+        }
+        header {
+          padding: 14px 16px;
+        }
+        .grid-3 {
+          grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        }
+        .card .value {
+          font-size: 21px;
+        }
+      }
 
+      @media (max-width: 900px) {
+        .layout {
           grid-template-columns: 1fr;
-
         }
-
-
-
         aside {
-
           position: sticky;
-
           top: 0;
-
           z-index: 10;
-
+          max-height: 55vh;
+          overflow-y: auto;
         }
-
+        .header-bar {
+          flex-wrap: wrap;
+          align-items: flex-start;
+        }
+        .header-actions {
+          width: 100%;
+          justify-content: flex-end;
+          flex-wrap: wrap;
+        }
+        .form-actions {
+          flex-wrap: wrap;
+        }
+        .form-actions .button,
+        .form-actions button {
+          width: 100%;
+          text-align: center;
+        }
         table {
           display: block;
           overflow-x: auto;
           white-space: nowrap;
           -webkit-overflow-scrolling: touch;
         }
+      }
 
+      @media (max-width: 640px) {
+        header h2 {
+          font-size: 16px;
+          line-height: 1.25;
+        }
+        aside {
+          padding: 10px 8px;
+        }
+        .nav-link {
+          padding: 8px 9px;
+        }
+        .container {
+          padding: 12px 10px 28px;
+        }
+        .panel {
+          padding: 14px;
+        }
+        .card {
+          padding: 12px;
+        }
+        .user-chip {
+          width: 100%;
+          text-align: center;
+        }
+        .logout-btn {
+          width: 100%;
+          justify-content: center;
+        }
       }
 
     </style>
@@ -1005,7 +1060,5 @@
   </body>
 
 </html>
-
-
 
 
