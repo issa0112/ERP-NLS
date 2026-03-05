@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth.decorators import login_required
 
 from . import views
 
@@ -105,3 +106,6 @@ urlpatterns = [
     path("livraisons/<int:pk>/modifier/", views.DeliveryNoteUpdate.as_view(), name="delivery_update"),
     path("livraisons/<int:pk>/supprimer/", views.DeliveryNoteDelete.as_view(), name="delivery_delete"),
 ]
+
+for route in urlpatterns:
+    route.callback = login_required(route.callback)

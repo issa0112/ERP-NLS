@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="Camion citerne sur route">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#102a2a"/>
+      <stop offset="55%" stop-color="#1d3f3b"/>
+      <stop offset="100%" stop-color="#2d4f40"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0b35f" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#f0b35f" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#223238"/>
+      <stop offset="100%" stop-color="#161f23"/>
+    </linearGradient>
+    <linearGradient id="tank" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#cfd9dc"/>
+      <stop offset="45%" stop-color="#f1f5f7"/>
+      <stop offset="100%" stop-color="#aab8bd"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+
+  <circle cx="1180" cy="160" r="210" fill="url(#sun)"/>
+  <ellipse cx="1180" cy="170" rx="280" ry="80" fill="#f0b35f" opacity="0.16" filter="url(#soft)"/>
+
+  <path d="M0 590 C260 520, 420 550, 700 570 C980 590, 1260 560, 1600 500 L1600 1000 L0 1000 Z" fill="#2a4f46" opacity="0.6"/>
+  <path d="M0 680 C300 620, 660 670, 980 700 C1240 725, 1450 690, 1600 650 L1600 1000 L0 1000 Z" fill="#1f3c3a" opacity="0.75"/>
+
+  <rect x="0" y="760" width="1600" height="240" fill="url(#road)"/>
+  <rect x="0" y="838" width="1600" height="8" fill="#6d7b80" opacity="0.6"/>
+  <rect x="120" y="835" width="120" height="10" fill="#e8e1c4"/>
+  <rect x="330" y="835" width="120" height="10" fill="#e8e1c4"/>
+  <rect x="540" y="835" width="120" height="10" fill="#e8e1c4"/>
+  <rect x="750" y="835" width="120" height="10" fill="#e8e1c4"/>
+  <rect x="960" y="835" width="120" height="10" fill="#e8e1c4"/>
+  <rect x="1170" y="835" width="120" height="10" fill="#e8e1c4"/>
+  <rect x="1380" y="835" width="120" height="10" fill="#e8e1c4"/>
+
+  <g transform="translate(260,520)">
+    <rect x="0" y="120" width="300" height="140" rx="18" fill="#0f5f4b"/>
+    <rect x="24" y="140" width="110" height="55" rx="8" fill="#9dd0dc" opacity="0.75"/>
+    <rect x="150" y="140" width="130" height="55" rx="8" fill="#9dd0dc" opacity="0.42"/>
+
+    <rect x="260" y="135" width="620" height="120" rx="58" fill="url(#tank)" stroke="#9da9ae" stroke-width="4"/>
+    <rect x="305" y="172" width="280" height="10" rx="5" fill="#8ea0a8" opacity="0.7"/>
+    <circle cx="820" cy="195" r="18" fill="#74858c"/>
+    <rect x="860" y="165" width="24" height="60" rx="8" fill="#7a8a90"/>
+
+    <rect x="260" y="250" width="640" height="28" rx="10" fill="#30464f"/>
+
+    <g fill="#13181c">
+      <circle cx="130" cy="285" r="44"/>
+      <circle cx="365" cy="285" r="44"/>
+      <circle cx="600" cy="285" r="44"/>
+      <circle cx="835" cy="285" r="44"/>
+    </g>
+    <g fill="#5d6a70">
+      <circle cx="130" cy="285" r="18"/>
+      <circle cx="365" cy="285" r="18"/>
+      <circle cx="600" cy="285" r="18"/>
+      <circle cx="835" cy="285" r="18"/>
+    </g>
+  </g>
+</svg>

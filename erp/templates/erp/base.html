@@ -284,6 +284,37 @@
       .theme-toggle:hover {
         filter: brightness(1.06);
       }
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .user-chip {
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .logout-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 700;
+        padding: 8px 10px;
+        cursor: pointer;
+        font: inherit;
+      }
+      .logout-btn:hover {
+        background: var(--card);
+      }
 
 
 
@@ -837,9 +868,21 @@
         <header>
           <div class="header-bar">
             <h2>{% block header_title %}ERP Transport Carburant{% endblock %}</h2>
-            <button id="theme-toggle" class="theme-toggle" type="button" title="Mode sombre/claire">
-              <span id="theme-toggle-icon" class="material-symbols-outlined">dark_mode</span>
-            </button>
+            <div class="header-actions">
+              <button id="theme-toggle" class="theme-toggle" type="button" title="Mode sombre/claire">
+                <span id="theme-toggle-icon" class="material-symbols-outlined">dark_mode</span>
+              </button>
+              {% if request.user.is_authenticated %}
+                <span class="user-chip">{{ request.user.username }}</span>
+                <form method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                  <button class="logout-btn" type="submit">
+                    <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+                    Deconnexion
+                  </button>
+                </form>
+              {% endif %}
+            </div>
           </div>
 
         </header>
@@ -962,8 +1005,6 @@
   </body>
 
 </html>
-
-
 
 
 
