@@ -170,6 +170,24 @@
       .sidebar-toggle:hover {
         background: rgba(255, 255, 255, 0.16);
       }
+      .mobile-menu-btn {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--card);
+        color: var(--text);
+        cursor: pointer;
+      }
+      .mobile-menu-btn:hover {
+        filter: brightness(1.06);
+      }
+      .mobile-backdrop {
+        display: none;
+      }
 
       .nav-group {
         margin-bottom: 14px;
@@ -707,12 +725,39 @@
         .layout {
           grid-template-columns: 1fr;
         }
+        body {
+          overflow-x: hidden;
+        }
         aside {
-          position: sticky;
+          position: fixed;
           top: 0;
-          z-index: 10;
-          max-height: 55vh;
+          left: 0;
+          bottom: 0;
+          width: min(84vw, 310px);
+          z-index: 50;
           overflow-y: auto;
+          transform: translateX(-102%);
+          transition: transform 0.2s ease;
+          border-right: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        body.mobile-nav-open aside {
+          transform: translateX(0);
+        }
+        .mobile-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 40;
+          display: none;
+          background: rgba(7, 11, 12, 0.44);
+        }
+        body.mobile-nav-open .mobile-backdrop {
+          display: block;
+        }
+        body.mobile-nav-open {
+          overflow: hidden;
+        }
+        .mobile-menu-btn {
+          display: inline-flex;
         }
         .header-bar {
           flex-wrap: wrap;
@@ -766,6 +811,9 @@
         .logout-btn {
           width: 100%;
           justify-content: center;
+        }
+        .sidebar-toggle {
+          display: none;
         }
       }
 
@@ -922,6 +970,9 @@
 
         <header>
           <div class="header-bar">
+            <button id="mobile-menu-btn" class="mobile-menu-btn" type="button" aria-label="Ouvrir le menu">
+              <span class="material-symbols-outlined">menu</span>
+            </button>
             <h2>{% block header_title %}ERP Transport Carburant{% endblock %}</h2>
             <div class="header-actions">
               <button id="theme-toggle" class="theme-toggle" type="button" title="Mode sombre/claire">
@@ -956,6 +1007,7 @@
         </main>
 
       </div>
+      <button id="mobile-backdrop" class="mobile-backdrop" type="button" aria-label="Fermer le menu"></button>
 
     </div>
 
@@ -989,6 +1041,24 @@
           icon.textContent = collapsed ? "left_panel_open" : "left_panel_close";
           localStorage.setItem(key, collapsed ? "1" : "0");
         });
+      })();
+
+      (function () {
+        const body = document.body;
+        const menuBtn = document.getElementById("mobile-menu-btn");
+        const backdrop = document.getElementById("mobile-backdrop");
+        const links = document.querySelectorAll("aside .nav-link");
+        if (!menuBtn || !backdrop) return;
+
+        function closeMenu() {
+          body.classList.remove("mobile-nav-open");
+        }
+
+        menuBtn.addEventListener("click", function () {
+          body.classList.toggle("mobile-nav-open");
+        });
+        backdrop.addEventListener("click", closeMenu);
+        links.forEach((link) => link.addEventListener("click", closeMenu));
       })();
 
       (function () {
@@ -1060,5 +1130,4 @@
   </body>
 
 </html>
-
 
